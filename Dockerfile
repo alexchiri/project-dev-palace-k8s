@@ -6,10 +6,10 @@ RUN apt-get update && apt-get -y install jq unzip python3 apt-transport-https ca
 
 USER alex
 
-ENV KUBECTL_VERSION="v1.18.2"
+ENV KUBECTL_VERSION="v1.18.3"
 ENV HELM_VERSION="v3.2.1"
 ENV HELMSMAN_VERSION="3.3.0"
-ENV GO_VERSION="1.14.2"
+ENV GO_VERSION="1.14.3"
 ENV GO111MODULE="on"
 ENV KIND_VERSION="v0.8.0"
 
