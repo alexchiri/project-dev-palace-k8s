@@ -1,30 +1,31 @@
-FROM alexchiri.azurecr.io/basic:1
+FROM basic:1
 
 USER root
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 RUN apt-get update && apt-get -y install jq unzip python3 apt-transport-https ca-certificates software-properties-common jid
 
-USER alex
+ARG USERNAME=alex
+USER ${USERNAME}
 
 ENV KUBECTL_VERSION="v1.19.2"
-ENV HELM_VERSION="v3.3.4"
-ENV HELMSMAN_VERSION="3.4.6"
-ENV GO_VERSION="1.15.2"
+ENV HELM_VERSION="v3.5.2"
+ENV HELMSMAN_VERSION="3.6.4"
+ENV GO_VERSION="1.16"
 ENV GO111MODULE="on"
-ENV KIND_VERSION="v0.9.0"
+ENV KIND_VERSION="v0.10.0"
 
 USER root
 
 # install go
 RUN cd /tmp && curl -LO "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" \
   && tar -xvzf "./go${GO_VERSION}.linux-amd64.tar.gz" -C /usr/local \
-  && echo "export PATH=\$PATH:/usr/local/go/bin" >> /home/alex/.zshrc
+  && echo "export PATH=\$PATH:/usr/local/go/bin" >> /home/${USERNAME}/.zshrc
 
-USER alex
+USER ${USERNAME}
 
 # install kind
 RUN /usr/local/go/bin/go get "sigs.k8s.io/kind@${KIND_VERSION}"
-RUN sed -i 's~PATH:~PATH:/home/alex/go/bin:~g' ~/.zshrc
+RUN sed -i 's~PATH:~PATH:/home/${USERNAME}/go/bin:~g' ~/.zshrc
 
 USER root
 
@@ -49,12 +50,12 @@ RUN cd /tmp && curl -LO "https://github.com/Praqma/helmsman/releases/download/v$
 RUN git clone https://github.com/ahmetb/kubectx /opt/kubectx
 RUN ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
 RUN ln -s /opt/kubectx/kubens /usr/local/bin/kubens
-RUN mkdir -p /home/alex/.oh-my-zsh/completions
-RUN chmod -R 755 /home/alex/.oh-my-zsh/completions
-RUN ln -s /opt/kubectx/completion/kubectx.zsh /home/alex/.oh-my-zsh/completions/_kubectx.zsh
-RUN ln -s /opt/kubectx/completion/kubens.zsh /home/alex/.oh-my-zsh/completions/_kubens.zsh
+RUN mkdir -p /home/${USERNAME}/.oh-my-zsh/completions
+RUN chmod -R 755 /home/${USERNAME}/.oh-my-zsh/completions
+RUN ln -s /opt/kubectx/completion/kubectx.zsh /home/${USERNAME}/.oh-my-zsh/completions/_kubectx.zsh
+RUN ln -s /opt/kubectx/completion/kubens.zsh /home/${USERNAME}/.oh-my-zsh/completions/_kubens.zsh
 
-USER alex
+USER ${USERNAME}
 
 # install helmdiff - look at this afterwards, for some reason now it fails with line encoding issues
 RUN helm plugin install https://github.com/databus23/helm-diff --version master
